@@ -44,18 +44,21 @@ package org.cove.ape {
 			}
 			
 			var centralMass:Vector = new Vector(totalXMass/totalMass, totalYMass/totalMass);
+			//handle divide by zero
+			if(isNaN(centralMass.x))
+				centralMass.x = 0;
+			if(isNaN(centralMass.y))
+				centralMass.y = 0;
+				
 			var distance:Number = $particle.center.distance(centralMass) / viewParameters.distanceRatio;
 			
 			var forceX:Number = G * ((totalMass * $particle.mass)* $particle.center.unitVector(centralMass).x)/(distance*distance) ;
 			var forceY:Number = G * ((totalMass * $particle.mass) * $particle.center.unitVector(centralMass).y)/(distance*distance);
-			
-			//var forceX:Number = - G * (totalMass * $particle.mass)/(distance*distance);
-			//var forceY:Number = G * (totalMass * $particle.mass)/(distance*distance);
-			
-			var consoleTrace:String = ("distanceRatio: " + viewParameters.distanceRatio + " distanceNumerator: " + viewParameters.distanceNumerator);
-			//consoleTrace += (" forceX: " + forceX + " forceY: " + forceY);
-			
-			//dispatchEvent(new LogEvent(LogEvent.CONSOLE_EVENT, true, true, consoleTrace));
+			//handle divide by zero
+			if(isNaN(forceX))
+				forceX = 0;
+			if(isNaN(forceY))
+				forceY = 0;
 			
 			return new VectorForce(true,forceX,forceY);
 		}
