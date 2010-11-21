@@ -123,6 +123,7 @@ package org.cove.ape {
 		 * 
 		 * @throws ArgumentError ArgumentError if the mass is set less than zero. 
 		 */
+		 [Bindable]
 		public function get mass():Number {
 			return _mass; 
 		}

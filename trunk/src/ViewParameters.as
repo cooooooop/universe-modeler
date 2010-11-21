@@ -34,6 +34,10 @@ package  {
 			return distanceNumerator/SolarSystemProperties.DIST_EARTH_SUN;
 		}
 		
+		public function set distanceRatio($ratio:Number):void {
+			//do nothing
+		}
+		
 		public function get velocityRatio():Number {
 			return ((canvasWidth * canvasHeight * distanceRatio) / FRAME_RATE + 1000*20*distanceRatio);
 		}

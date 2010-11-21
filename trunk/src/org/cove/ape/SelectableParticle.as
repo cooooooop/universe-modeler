@@ -52,9 +52,14 @@ package org.cove.ape {
 				_force = new Vector(vf.vx, vf.vy);
 		}
 		
+		[Bindable]
 		public function get force():Vector {
 			return _force;
 			
+		}
+		
+		public function set force($vector:Vector):void {
+			//do nothing
 		}
 		
 		[Bindable]

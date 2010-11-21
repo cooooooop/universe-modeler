@@ -56,8 +56,8 @@
                         <menuitem label="Restart" data="RESTART"/>
                     </menuitem>
                     <menuitem label="Controls" data="top">
-			           <menuitem label="Enable Panning (press M to toggle)" type="check" data="PAN"/>
-			           <menuitem label="Show Paths (press P to toggle)" type="check" data="PATH"/>
+			           <menuitem label="Toggle Panning (press M)" data="PAN"/>
+			           <menuitem label="Toggle Paths (press P)" data="PATH"/>
                     </menuitem>
                 </>;
 			
@@ -140,10 +140,10 @@
 						_solarSystem.clearPaths();
 						SHOW_START = true;
 						break;
-					case "Enable Panning (press M to toggle)":
+					case "Toggle Panning (press M)":
 						enablePanning(!mainCanvas.enablePanning);
 						break;
-					case "Show Paths (press P to toggle)":
+					case "Toggle Paths (press P)":
 						enablePaths(!_solarSystem.showPaths);
 						break;
 				}
