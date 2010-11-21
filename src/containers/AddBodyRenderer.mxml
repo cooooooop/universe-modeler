@@ -21,7 +21,7 @@
     		_body.mass = SolarSystemProperties.EARTH_MASS * Number(txtMass.text);
     		_body.px = Number(txtPosX.text);
     		_body.py = Number(txtPosY.text);
-    		//_body.velocity = new Vector(0, 2);
+    		_body.velocity = new Vector((Number(txtVelX.text) * viewParameters.velocityRatio), (Number(txtVelY.text) * viewParameters.velocityRatio));
     	}
     	
 	]]>
