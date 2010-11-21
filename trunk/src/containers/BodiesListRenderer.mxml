@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml"
+	height="{open ? 125:25}" width="100%"
+	horizontalScrollPolicy="off">
+	<mx:Script>
+	<![CDATA[
+		import physics.MathUtil;
+		
+		[Bindable] public var open:Boolean = false;
+		
+		[Bindable] private var viewParameters:ViewParameters = ViewParameters.getInstance();
+	]]>
+	</mx:Script>
+	<mx:HBox width="100%">
+		<mx:Text selectable="false" text="{open ? '-':'+'}" 
+			useHandCursor="true" buttonMode="true" mouseChildren="false"
+			click="open = !open" width="21" textAlign="center"/>
+		<mx:Text selectable="false" text="{data.name}" click="open = !open" doubleClickEnabled="true"
+			doubleClick="data.selected = !data.selected" fontWeight="{data.selected ? 'bold':'normal'}"/>
+	</mx:HBox>
+	<mx:Text paddingLeft="21" selectable="false" text="{'Mass: ' + MathUtil.toScientific(Number(data.mass), 2) + ' kg'}"/>
+	<mx:Text paddingLeft="21" selectable="false" text="{'Position: X=' + MathUtil.toScientific(data.position.x / viewParameters.distanceRatio, 2) + ' m' + ' Y=' + MathUtil.toScientific(data.position.y / viewParameters.distanceRatio, 2) + ' m'}"/>
+	<mx:Text paddingLeft="21" selectable="false" text="{'Velocity: X=' + Number(data.curr.x - data.prev.x).toFixed(2) + ' m/s' + ' Y=' + Number(data.curr.y - data.prev.y).toFixed(2) + ' m/s'}"/>
+	<mx:Text paddingLeft="21" selectable="false" text="{'Force: X=' + MathUtil.toScientific(Number(data.force.x), 2) + ' N' + ' Y=' + MathUtil.toScientific(Number(data.force.y), 2) + ' N'}"/>
+</mx:VBox>

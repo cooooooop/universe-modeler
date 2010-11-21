@@ -1,0 +1,308 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml"
+	xmlns:containers="containers.*"
+	xmlns:ape="util.*"
+	applicationComplete="onCC()"
+	initialize="init()"
+	layout="absolute" >
+	<mx:Script>
+		<![CDATA[
+			import mx.events.CloseEvent;
+			import mx.events.MenuEvent;
+			import events.LogEvent;
+			import events.SelectionEvent;
+			import mx.controls.Alert;
+			import physics.SolarSystem;
+			import org.cove.ape.StellarObject;
+			import mx.core.UIComponent;
+			import org.cove.ape.SelectableParticle;
+			import physics.SolarSystemProperties;
+			import org.cove.ape.Vector;
+			import mx.collections.ArrayCollection;
+			
+			import nl.demonsters.debugger.MonsterDebugger;
+			
+			private var _debugger:MonsterDebugger;
+			
+			[Bindable]
+			private var viewParameters:ViewParameters = ViewParameters.getInstance();
+			
+			[Bindable]
+			public var _solarSystem:SolarSystem;
+			
+			private var _panning:Boolean;
+			private var _startPoint:Point;
+			private var _lastOrigin:Point;
+			
+			[Bindable] public var consoleText:String = "";
+			[Bindable] public var _selectedObject:StellarObject;
+			[Bindable] public var SHOW_START:Boolean = false;
+			
+			public static const FR:String = "FR";
+			public static const SR:String = "SR";
+			public static const PA:String = "PA";
+			public static const PL:String = "PL";
+			public static const SF:String = "SF";
+			public static const FF:String = "FF";
+			
+			public static var timeControlValue:String = PL;		
+			
+			[Bindable] private var objectCount:Number = 1;	
+			
+			[Bindable]
+			private var menubarXML:XMLList =
+                <>
+                    <menuitem label="File" data="top">
+                        <menuitem label="Restart" data="RESTART"/>
+                    </menuitem>
+                    <menuitem label="Controls" data="top">
+			           <menuitem label="Enable Panning (press M to toggle)" type="check" data="PAN"/>
+			           <menuitem label="Show Paths (press P to toggle)" type="check" data="PATH"/>
+                    </menuitem>
+                </>;
+			
+			private function init():void {
+				_debugger = new MonsterDebugger(this);
+				MonsterDebugger.trace(this, "say what?");
+				
+				_solarSystem = new SolarSystem();
+				_solarSystem.addEventListener(SelectionEvent.SELECTION, onSelection);
+				
+				var uiComponent:UIComponent = new UIComponent();
+				uiComponent.addChild(_solarSystem);
+			
+				//Sets up a 1000x1000 square as the work space
+				//0,0 is in the center of the component
+				//x goes from left to right, y goes from top to bottom
+				_solarSystem.x = viewParameters.canvasWidth / 2;
+				_solarSystem.y = viewParameters.canvasHeight / 2;
+				uiComponent.width = viewParameters.canvasWidth;
+				uiComponent.height = viewParameters.canvasHeight;
+				mainCanvas.addChild(uiComponent);
+				
+			}
+			
+			private function onCC():void {
+				stage.addEventListener(KeyboardEvent.KEY_DOWN, handleKeyDown);
+				stage.addEventListener(LogEvent.CONSOLE_EVENT, onConsoleEvent);
+				
+				/*
+				Alert.show("Welcome to UniverseModeler.", "", Alert.OK, this,
+					function(event:CloseEvent):void {
+						setFocus();
+						startApe();
+					}
+				);
+				*/
+				
+				SHOW_START = true;
+				lstAddBodies.dataProvider = new ArrayCollection();
+				consoleText += "Component initialization complete.\n";
+			}
+			
+			private function updateListDataProvider():void {
+				lstBodies.dataProvider = _solarSystem.bodies;
+			}
+			
+			private function onConsoleEvent($event:DataEvent):void {
+				consoleText = $event.data + '\n' + consoleText;
+			}
+			
+			private function onSelection($event:SelectionEvent):void {
+				_selectedObject = $event.selectedItem as StellarObject;
+			}
+			
+			private function handleKeyDown($event:KeyboardEvent):void {
+				//77 is keyCode for M
+				if($event.keyCode == 77)
+					enablePanning(!mainCanvas.enablePanning);
+					
+				//80 is keyCode for P	
+				if($event.keyCode == 80) {
+					enablePaths(!_solarSystem.showPaths);
+				}
+					
+			}
+			
+			private function enablePanning($value:Boolean):void {
+				mainCanvas.enablePanning = $value;
+			}
+			
+			private function enablePaths($value:Boolean):void {
+				_solarSystem.showPaths = $value;
+				_solarSystem.clearPaths();
+			}
+			
+			private function onMenuItemClick($event:MenuEvent):void {
+				switch($event.label) {
+					case "Restart":
+						_solarSystem.clear();
+						_solarSystem.clearPaths();
+						SHOW_START = true;
+						break;
+					case "Enable Panning (press M to toggle)":
+						enablePanning(!mainCanvas.enablePanning);
+						break;
+					case "Show Paths (press P to toggle)":
+						enablePaths(!_solarSystem.showPaths);
+						break;
+				}
+			}
+			
+			private function useDefault():void {
+				_solarSystem.clear();
+				setFocus();
+				startApe();
+				
+				var star:StellarObject = new StellarObject(0,0,20,false,SolarSystemProperties.SUN_MASS,0,0);
+				star.name = "Sol";
+				var p1:StellarObject = new StellarObject(
+					SolarSystemProperties.DIST_EARTH_SUN * viewParameters.distanceRatio,
+					0,5,
+					false,
+					SolarSystemProperties.EARTH_MASS,
+					0,0);
+				p1.name = "Earth";
+				var p2:StellarObject = new StellarObject(0,100,10,false,100,0,0);
+				p2.name = "Mars";
+				var p3:StellarObject = new StellarObject(-100,0,10,false,100,0,0);
+				p3.name = "Venus";
+				var p4:StellarObject = new StellarObject(
+					(SolarSystemProperties.DIST_EARTH_SUN - SolarSystemProperties.DIST_EARTH_MOON) * viewParameters.distanceRatio,
+					0,1,
+					false,
+					SolarSystemProperties.MOON_MASS,
+					0,0);
+				p4.name = "Moon";
+				
+				p1.velocity = new Vector(0, -(SolarSystemProperties.EARTH_VELOCITY * viewParameters.velocityRatio));
+				//p4.velocity = new Vector(0, -((SolarSystemProperties.EARTH_VELOCITY + SolarSystemProperties.MOON_VELOCITY) * viewParameters.velocityRatio));
+			
+				
+				_solarSystem.addBodies([star, p1]);
+				
+				updateListDataProvider();
+				
+				SHOW_START = false;
+			}
+			
+			private function useCustom():void {
+				_solarSystem.clear();
+				setFocus();
+				startApe();
+				
+				lstAddBodies.updateObjects();
+				_solarSystem.addBodies(lstAddBodies.dataProvider.source,true);
+				
+				updateListDataProvider();
+				
+				SHOW_START = false;
+			}
+			
+			private function startApe():void {
+				_solarSystem.letsGo();
+				_solarSystem.drawGrid();
+				
+			}
+			
+			private function addNewObject():void {
+				var newBody:StellarObject = new StellarObject(0,0,5,false,SolarSystemProperties.EARTH_MASS);
+				newBody.name = "Default_" + String(objectCount++);
+				(lstAddBodies.dataProvider as ArrayCollection).addItem(newBody);
+			}
+			
+		]]>
+	</mx:Script>
+	<mx:Style source="/assets/style.css"/>
+	<mx:MenuBar width="100%" height="25" 
+		itemClick="onMenuItemClick(event)" 
+		dataProvider="{menubarXML}" labelField="@label"/>
+	<mx:HDividedBox width="100%" top="25" bottom="0">
+		<!-- The Bodies list component -->
+		<mx:List id="lstBodies" top="25" left="0" width="233" height="100%"
+			variableRowHeight="true" selectable="false">
+			<mx:itemRenderer>
+				<mx:Component>
+					<containers:BodiesListRenderer />
+				</mx:Component>
+			</mx:itemRenderer>
+		</mx:List>
+		<containers:PanScrollingCanvas id="mainCanvas" 
+			height="100%" width="100%"/>
+	</mx:HDividedBox>
+	<mx:VBox id="consoleBox" top="25" right="0" width="50%" height="21%" visible="false"
+		borderThickness="1" backgroundAlpha="1"
+		borderColor="0x888888" borderStyle="solid" 
+		borderSides="left | bottom" verticalGap="0">
+		<mx:HBox width="100%" backgroundColor="black" verticalAlign="middle">
+			<mx:Text id="txtConsoleTitle" selectable="false" text="Console" fontWeight="bold"/>
+			<mx:Spacer width="100%"/>
+			<mx:Text selectable="false" text="[x]" useHandCursor="true" buttonMode="true" mouseChildren="false"
+				click="consoleBox.visible = false"/>
+		</mx:HBox>
+		<mx:HRule width="100%"/>
+		<mx:TextArea id="txtConsoleMain" height="100%" width="100%"
+			text="{consoleText}" backgroundColor="black"/>
+	</mx:VBox>
+	
+	<mx:HBox verticalAlign="middle" right="0" bottom="25">
+		<mx:Text selectable="false" text="Scale:"/>
+		<mx:NumericStepper id="nsDistanceNumerator" value="{viewParameters.distanceNumerator}" change="viewParameters.distanceNumerator = nsDistanceNumerator.value" 
+			stepSize="50" maximum="1000000" minimum="50" backgroundColor="black" color="0xFFFFFF"/>
+		<mx:Text selectable="false" text="= 1 AU"/>
+	</mx:HBox>
+			
+	<mx:DateFormatter id="dateFormatter" formatString="MMMM DD, YYYY"/>	
+	<mx:Text id="txtDate" selectable="false" text="{dateFormatter.format(viewParameters.getCurrentDate(viewParameters.currentFrame))}"
+		bottom="0" horizontalCenter="0" color="0xFFFFFF"/>
+		
+	<!-- Time controls -->	
+	<mx:HBox verticalAlign="center" bottom="0" right="25">
+		<mx:Text text="&lt;&lt;" toolTip="Fast Reverse" click="timeControlValue = FR"
+			useHandCursor="true" buttonMode="true" mouseChildren="false" selectable="false"/>
+		<mx:Text text="&lt;|" toolTip="Step Back" click="timeControlValue = SR"
+			useHandCursor="true" buttonMode="true" mouseChildren="false" selectable="false"/>
+		<mx:Text text="||" toolTip="Pause" click="timeControlValue = PA"
+			useHandCursor="true" buttonMode="true" mouseChildren="false" selectable="false"/>
+		<mx:Text text="&gt;" toolTip="Play" click="timeControlValue = PL"
+			useHandCursor="true" buttonMode="true" mouseChildren="false" selectable="false"/>
+		<mx:Text text="|&gt;" toolTip="Step Forward" click="timeControlValue = SF"
+			useHandCursor="true" buttonMode="true" mouseChildren="false" selectable="false"/>
+		<mx:Text text="&gt;&gt;" toolTip="Fast Forward" click="timeControlValue = FF"
+			useHandCursor="true" buttonMode="true" mouseChildren="false" selectable="false"/>
+	</mx:HBox>
+	
+	<mx:TitleWindow id="titleWindowStart" width="610" height="377"
+		borderAlpha="1"
+		verticalCenter="0" horizontalCenter="0"
+		visible="{SHOW_START}" includeInLayout="{SHOW_START}"
+		title="Welcome to Universe Modeler">
+		<mx:VBox width="100%" height="100%" horizontalAlign="center">
+			<mx:HBox width="100%">
+				<mx:CheckBox id="chkShowPath" label="Show Paths" selected="{_solarSystem.showPaths}" change="enablePaths(chkShowPath.selected)"/>
+				<mx:CheckBox id="chkShowConsole" label="Show Console" selected="{consoleBox.visible}" change="consoleBox.visible = chkShowConsole.selected"/>
+				<mx:CheckBox id="chkShowPanning" label="Enable Panning" selected="{mainCanvas.enablePanning}" change="enablePanning(chkShowPanning.selected)"/>
+			</mx:HBox>
+			<mx:Text width="100%" selectable="false" text="{'Press Use Default to view a two body system that mimics Earth and Sol.\nPress Add Body to add custom bodies to the view.\nNote that the positive X direction is right, while the positive Y direction is down (inverted Y).'}"/>
+			<mx:HBox width="100%" horizontalAlign="center">
+				<mx:Text text="Use Default" selectable="false" useHandCursor="true" buttonMode="true" mouseChildren="false"
+					fontSize="12" textDecoration="underline"
+					click="useDefault()"/>
+				<mx:Text text="Add Body" selectable="false" useHandCursor="true" buttonMode="true" mouseChildren="false" 
+					fontSize="12" textDecoration="underline"
+					click="addNewObject()"/>
+			</mx:HBox>
+			<mx:HRule width="100%"/>
+			<containers:TabList id="lstAddBodies" width="100%" height="100%"/>
+		</mx:VBox>
+		<mx:ControlBar horizontalAlign="center">
+			<mx:Text text="Use Custom" selectable="false" useHandCursor="true" buttonMode="true" mouseChildren="false"
+					fontSize="12" textDecoration="underline" visible="{lstAddBodies.dataProvider.length &gt; 0}"
+					click="useCustom()"/>
+			<mx:Text text="Clear All" selectable="false" useHandCursor="true" buttonMode="true" mouseChildren="false"
+					fontSize="12" textDecoration="underline" visible="{lstAddBodies.dataProvider.length &gt; 0}"
+					click="lstAddBodies.dataProvider = new ArrayCollection();lstAddBodies.removeAll()"/>
+		</mx:ControlBar>
+	</mx:TitleWindow>
+	
+</mx:Application>
