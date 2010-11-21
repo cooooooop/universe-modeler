@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" horizontalAlign="center"
+	borderColor="0x333333" borderStyle="solid" borderThickness="2">
+	<mx:Script>
+	<![CDATA[
+		import org.cove.ape.StellarObject;
+		import org.cove.ape.Vector;
+		import physics.SolarSystemProperties;
+		
+		[Bindable] private var _body:StellarObject;
+		[Bindable] private var viewParameters:ViewParameters = ViewParameters.getInstance();
+		
+		override public function set data(value:Object):void{
+        	super.data = value;
+        	_body = value as StellarObject;
+        	
+    	}
+    	
+    	public function updateAll():void {
+    		_body.name = txtName.text;
+    		_body.mass = SolarSystemProperties.EARTH_MASS * Number(txtMass.text);
+    		_body.px = Number(txtPosX.text);
+    		_body.py = Number(txtPosY.text);
+    		//_body.velocity = new Vector(0, 2);
+    	}
+    	
+	]]>
+	</mx:Script>
+	<mx:Form>
+		<mx:FormItem label="Name">
+			<mx:TextInput id="txtName" text="{_body.name}"/>
+		</mx:FormItem>
+		<mx:FormItem label="Mass">
+			<mx:HBox verticalAlign="middle">
+				<mx:TextInput id="txtMass" text="1" width="100"/>
+				<mx:Text selectable="false" text=" x Earth Mass"/>
+			</mx:HBox>
+		</mx:FormItem>
+		<mx:FormItem label="Radius">
+			<mx:HBox verticalAlign="middle">	
+				<mx:TextInput id="txtRadius" width="100"/>
+				<mx:Text selectable="false" text="m"/>
+			</mx:HBox>
+		</mx:FormItem>
+	</mx:Form>
+	<mx:Form>
+		<mx:FormItem label="Position">
+			<mx:HBox verticalAlign="middle">
+				<mx:Text selectable="false" text="X:"/>
+				<mx:TextInput id="txtPosX" text="0" width="40"/>
+				<mx:Text selectable="false" text="AU"/>
+			</mx:HBox>
+			<mx:HBox verticalAlign="middle">
+				<mx:Text selectable="false" text="Y:"/>
+				<mx:TextInput id="txtPosY" text="0" width="40"/>
+				<mx:Text selectable="false" text="AU"/>
+			</mx:HBox>
+		</mx:FormItem>
+		<mx:FormItem label="Velocity">
+			<mx:HBox verticalAlign="middle">
+				<mx:Text selectable="false" text="X:"/>
+				<mx:TextInput id="txtVelX" text="0" width="40" />
+				<mx:Text selectable="false" text="m/s"/>
+			</mx:HBox>
+			<mx:HBox verticalAlign="middle">
+				<mx:Text selectable="false" text="Y:"/>
+				<mx:TextInput id="txtVelY" text="0" width="40" />
+				<mx:Text selectable="false" text="m/s"/>
+			</mx:HBox>
+		</mx:FormItem>
+	</mx:Form>
+</mx:HBox>

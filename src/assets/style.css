@@ -1,0 +1,48 @@
+Application {
+	backgroundColor:	#000000;
+	color:				#FFFFFF;
+}
+
+Menu
+{
+	color:				#000000;
+	textRollOverColor:	#FFFFFF;
+	textSelectedColor:	#FFFFFF;
+	rollOverColor:		#000000;
+	selectionColor:		#000000;
+}
+
+MenuBar
+{
+	color:				#000000;
+	rollOverColor:		#000000;
+	selectionColor:		#000000;
+}
+
+MenuBarItem
+{
+	color:				#000000;
+	rollOverColor:		#08246B;
+	selectionColor:		#08246B;
+}
+
+TitleWindow
+{
+	backgroundColor:	#000000;
+	borderColor:		#121212;
+	color:				#FFFFFF;
+}
+
+List
+{
+	backgroundColor:	#000000;
+	backgroundAlpha:	0;
+	borderThickness:	0;
+	useRollOver:		false;
+	selectionColor:		#232323;
+}
+
+TextInput
+{
+	color: #000000;
+}
