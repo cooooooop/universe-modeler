@@ -14,7 +14,7 @@ package physics {
 		
 		private var _bodiesGroup:GravitationGroup;
 		public var mouseEvent:MouseEvent;
-		public var showPaths:Boolean = true;
+		[Bindable] public var showPaths:Boolean = true;
 		
 		private static const DELTA_TIME:Number = 1;
 		
