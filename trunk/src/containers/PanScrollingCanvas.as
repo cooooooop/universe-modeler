@@ -671,6 +671,7 @@ package containers
     // Properties & Styles
     //--------------------------------------------
         
+        [Bindable]
         public function get enablePanning():Boolean {
         	return _enablePanning;
         }
