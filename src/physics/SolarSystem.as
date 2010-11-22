@@ -1,14 +1,15 @@
 package physics {
 
-	import org.cove.ape.*;
-	import flash.events.Event;
-	import flash.events.MouseEvent;
-	import flash.display.Sprite;
-	import physics.PhysicsUtil;
 	import events.LogEvent;
 	import events.SelectionEvent;
+	
+	import flash.display.Sprite;
+	import flash.events.Event;
+	import flash.events.MouseEvent;
 	import flash.geom.Point;
 	import flash.utils.Dictionary;
+	
+	import org.cove.ape.*;
 
 	public class SolarSystem extends Sprite {
 		
@@ -17,15 +18,21 @@ package physics {
 		[Bindable] public var showPaths:Boolean = true;
 		
 		private static const DELTA_TIME:Number = 1;
+		private var testFrameControl:Number = 1; //default value is 1, set to larger number to slow down
 		
 		private var viewParameters:ViewParameters = ViewParameters.getInstance();
+		
+		private var _axesGroup:Group;
+		[Bindable] public var showAxes:Boolean = false;
 				
 		public function SolarSystem() {
 			addEventListener(MouseEvent.CLICK, onClick);
 		}
 		
 		public function get bodies():Array {
-			return _bodiesGroup.particles;
+			if(_bodiesGroup)
+				return _bodiesGroup.particles;
+			return [];
 		}
 		
 		private function onClick($event:MouseEvent):void {
@@ -57,16 +64,14 @@ package physics {
 		
 		public function drawGrid():void {
 			//just axes
-			var axesGroup:Group = new Group();
-			var xAxis:RectangleParticle = new RectangleParticle(0,0,1000,0.001,0,true);
-			var yAxis:RectangleParticle = new RectangleParticle(0,0,0.001,1000,0,true);
+			_axesGroup = new Group();
+			var xAxis:RectangleParticle = new RectangleParticle(0,0,2000,0.001,0,true);
+			var yAxis:RectangleParticle = new RectangleParticle(0,0,0.001,2000,0,true);
 			xAxis.setStyle(1,0xFFFFFF,1,0xFFFFFF,1);
 			yAxis.setStyle(1,0xFFFFFF,1,0xFFFFFF,1);
 			
-			axesGroup.addParticle(xAxis);
-			axesGroup.addParticle(yAxis);
-			
-			APEngine.addGroup(axesGroup);
+			_axesGroup.addParticle(xAxis);
+			_axesGroup.addParticle(yAxis);
 			
 		}
 		
@@ -91,16 +96,18 @@ package physics {
 		private var _prevLocations:Dictionary;
 		
 		private function drawPath():void {
-			if(_prevLocations == null)
-				_prevLocations = new Dictionary();
-			for each(var particle:AbstractParticle in _bodiesGroup.particles) {
-				if(_prevLocations[particle]) {
-					this.graphics.lineStyle(1, 0xFFFFFF, 1);
-					this.graphics.moveTo(_prevLocations[particle].x, _prevLocations[particle].y);
-					this.graphics.lineTo(particle.center.x, particle.center.y);
+			if(_bodiesGroup) {
+				if(_prevLocations == null)
+					_prevLocations = new Dictionary();
+				for each(var particle:SelectableParticle in _bodiesGroup.particles) {
+					if(_prevLocations[particle]) {
+						this.graphics.lineStyle(1, particle.color, 1);
+						this.graphics.moveTo(_prevLocations[particle].x, _prevLocations[particle].y);
+						this.graphics.lineTo(particle.center.x, particle.center.y);
+					}
+					
+					_prevLocations[particle] = new Vector(particle.center.x, particle.center.y);
 				}
-				
-				_prevLocations[particle] = new Vector(particle.center.x, particle.center.y);
 			}
 		}
 		
@@ -109,17 +116,22 @@ package physics {
 		}
 		
 		private function calculateForcesPerStep():void {
-			for each(var particle:AbstractParticle in _bodiesGroup.particles) {
-				var force:VectorForce = _bodiesGroup.gravitationalForceForParticle(particle);
-			
-				particle.addForce(force);
+			if(_bodiesGroup) {
+				for each(var particle:AbstractParticle in _bodiesGroup.particles) {
+					var force:VectorForce = _bodiesGroup.gravitationalForceForParticle(particle);
+				
+					particle.addForce(force);
+				}
 			}
 		}
 
 		private function run(evt:Event):void {
-			//default value is 1, set to larger number to slow down
-			var testFrameControl:Number = 1;
-				
+			
+			if(!showAxes && APEngine.hasGroup(_axesGroup))
+				APEngine.removeGroup(_axesGroup);
+			else if(showAxes && !APEngine.hasGroup(_axesGroup))
+				APEngine.addGroup(_axesGroup);
+			
 			//Each frame represents one 
 			viewParameters.currentFrame++;
 			

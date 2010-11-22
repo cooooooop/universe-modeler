@@ -4,10 +4,10 @@
 package containers {
 	
 	import mx.collections.ArrayCollection;
-	import org.cove.ape.StellarObject;
-	import containers.AddBodyRenderer;
 	import mx.containers.VBox;
-	import mx.events.CollectionEvent;	
+	import mx.events.CollectionEvent;
+	
+	import org.cove.ape.StellarObject;	
 		
 	public class TabList extends VBox {
 		private var _dataProvider:ArrayCollection;
@@ -26,7 +26,10 @@ package containers {
 		
 		public function updateObjects():void {
 			for each(var renderer:AddBodyRenderer in getChildren()) {
-				renderer.updateAll();
+				var body:StellarObject = renderer.updateAll();
+				var index:int = _dataProvider.getItemIndex(body);
+				if(index >= 0)
+					_dataProvider.setItemAt(body,index);
 			}
 		}
 		
@@ -39,11 +42,27 @@ package containers {
 			for each(var child:StellarObject in _dataProvider) {
 				if(!hasChild(child)) {
 					bodyRenderer = new AddBodyRenderer();
-					bodyRenderer.data = child;
 					this.addChild(bodyRenderer);
+					bodyRenderer.data = child;
 				}
 			}
 		}
+		
+		public function useSetValues($array:Array):void {
+    		this.removeAllChildren();
+    		_dataProvider = new ArrayCollection();
+    		
+    		var renderer:AddBodyRenderer;
+    		for each(var body:StellarObject in $array) {
+    			_dataProvider.addItem(body);
+    			renderer = new AddBodyRenderer();
+    			this.addChild(renderer);
+    			renderer.addSetValues(body);
+    		}
+    		
+    		if(!_dataProvider.hasEventListener(CollectionEvent.COLLECTION_CHANGE))
+				_dataProvider.addEventListener(CollectionEvent.COLLECTION_CHANGE, onCollectionChange);
+    	}
 		
 		private function hasChild($child:StellarObject):Boolean {
 			for each(var renderer:AddBodyRenderer in getChildren()) {
