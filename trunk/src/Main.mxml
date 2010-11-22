@@ -7,6 +7,8 @@
 	layout="absolute" >
 	<mx:Script>
 		<![CDATA[
+			import flash.net.registerClassAlias;
+			import mx.containers.Canvas;
 			import mx.events.CloseEvent;
 			import mx.events.MenuEvent;
 			import events.LogEvent;
@@ -48,6 +50,7 @@
 			public static var timeControlValue:String = PL;		
 			
 			[Bindable] private var objectCount:Number = 1;	
+			[Bindable] private var saveSO:SharedObject;
 			
 			[Bindable]
 			private var menubarXML:XMLList =
@@ -58,6 +61,7 @@
                     <menuitem label="Controls" data="top">
 			           <menuitem label="Toggle Panning (press M)" data="PAN"/>
 			           <menuitem label="Toggle Paths (press P)" data="PATH"/>
+			           <menuitem label="Toggle Grid (press G)" data="GRID"/>
                     </menuitem>
                 </>;
 			
@@ -65,9 +69,17 @@
 				_debugger = new MonsterDebugger(this);
 				MonsterDebugger.trace(this, "say what?");
 				
+				//registerClassAlias("StellarObjectAlias", StellarObject);
+				
+				//find shared objects
+				/* saveSO = SharedObject.getLocal("saves");
+			    if (saveSO.size == 0)
+			    	saveSO.data.saves = []; */
+				
 				_solarSystem = new SolarSystem();
 				_solarSystem.addEventListener(SelectionEvent.SELECTION, onSelection);
 				
+				var canvas:Canvas;
 				var uiComponent:UIComponent = new UIComponent();
 				uiComponent.addChild(_solarSystem);
 			
@@ -96,6 +108,7 @@
 				*/
 				
 				SHOW_START = true;
+				startApe();
 				lstAddBodies.dataProvider = new ArrayCollection();
 				consoleText += "Component initialization complete.\n";
 			}
@@ -121,6 +134,11 @@
 				if($event.keyCode == 80) {
 					enablePaths(!_solarSystem.showPaths);
 				}
+				
+				//71 is keyCode for G	
+				if($event.keyCode == 71) {
+					_solarSystem.showAxes = !_solarSystem.showAxes;
+				}
 					
 			}
 			
@@ -138,6 +156,8 @@
 					case "Restart":
 						_solarSystem.clear();
 						_solarSystem.clearPaths();
+						lstAddBodies.dataProvider = new ArrayCollection();
+						lstAddBodies.removeAll();
 						SHOW_START = true;
 						break;
 					case "Toggle Panning (press M)":
@@ -146,13 +166,13 @@
 					case "Toggle Paths (press P)":
 						enablePaths(!_solarSystem.showPaths);
 						break;
+					case "Toggle Grid (press G)":
+						_solarSystem.showAxes = !_solarSystem.showAxes;
+						break;
 				}
 			}
 			
 			private function useDefault():void {
-				_solarSystem.clear();
-				setFocus();
-				startApe();
 				
 				var star:StellarObject = new StellarObject(0,0,20,false,SolarSystemProperties.SUN_MASS,0,0);
 				star.name = "Sol";
@@ -163,38 +183,24 @@
 					SolarSystemProperties.EARTH_MASS,
 					0,0);
 				p1.name = "Earth";
-				var p2:StellarObject = new StellarObject(0,100,10,false,100,0,0);
-				p2.name = "Mars";
-				var p3:StellarObject = new StellarObject(-100,0,10,false,100,0,0);
-				p3.name = "Venus";
-				var p4:StellarObject = new StellarObject(
-					(SolarSystemProperties.DIST_EARTH_SUN - SolarSystemProperties.DIST_EARTH_MOON) * viewParameters.distanceRatio,
-					0,1,
-					false,
-					SolarSystemProperties.MOON_MASS,
-					0,0);
-				p4.name = "Moon";
 				
 				p1.velocity = new Vector(0, -(SolarSystemProperties.EARTH_VELOCITY * viewParameters.velocityRatio));
-				//p4.velocity = new Vector(0, -((SolarSystemProperties.EARTH_VELOCITY + SolarSystemProperties.MOON_VELOCITY) * viewParameters.velocityRatio));
 			
 				
-				_solarSystem.addBodies([star, p1]);
-				
-				updateListDataProvider();
-				
-				SHOW_START = false;
+				lstAddBodies.useSetValues([star, p1]);
+				//btnSave.visible = true;
+				btnLaunch.visible = true;
+				btnClear.visible = true;
 			}
 			
 			private function useCustom():void {
 				_solarSystem.clear();
 				setFocus();
-				startApe();
 				
 				lstAddBodies.updateObjects();
 				_solarSystem.addBodies(lstAddBodies.dataProvider.source,true);
-				
 				updateListDataProvider();
+				
 				
 				SHOW_START = false;
 			}
@@ -206,10 +212,23 @@
 			}
 			
 			private function addNewObject():void {
-				var newBody:StellarObject = new StellarObject(0,0,5,false,SolarSystemProperties.EARTH_MASS);
+				var newBody:StellarObject = new StellarObject(0,0,5,false,SolarSystemProperties.SUN_MASS);
 				newBody.name = "Default_" + String(objectCount++);
+				newBody.color = 0xFFFFFF;
 				(lstAddBodies.dataProvider as ArrayCollection).addItem(newBody);
 			}
+			
+			/* private function save():void {
+				(saveSO.data.saves as Array).push((lstAddBodies.dataProvider as ArrayCollection).source);
+				saveSO.flush();
+			}
+			
+			private function onLoad():void {
+				lstAddBodies.useSetValues(cboLoad.selectedItem as Array);
+				btnSave.visible = true;
+				btnLaunch.visible = true;
+				btnClear.visible = true;
+			} */
 			
 		]]>
 	</mx:Script>
@@ -228,7 +247,8 @@
 			</mx:itemRenderer>
 		</mx:List>
 		<containers:PanScrollingCanvas id="mainCanvas" 
-			height="100%" width="100%"/>
+			height="100%" width="100%"
+			borderColor="0x333333" borderStyle="solid" borderThickness="2"/>
 	</mx:HDividedBox>
 	<mx:VBox id="consoleBox" top="25" right="0" width="50%" height="21%" visible="false"
 		borderThickness="1" backgroundAlpha="1"
@@ -245,13 +265,6 @@
 			text="{consoleText}" backgroundColor="black"/>
 	</mx:VBox>
 	
-	<mx:HBox verticalAlign="middle" right="0" bottom="25">
-		<mx:Text selectable="false" text="Scale:"/>
-		<mx:NumericStepper id="nsDistanceNumerator" value="{viewParameters.distanceNumerator}" change="viewParameters.distanceNumerator = nsDistanceNumerator.value" 
-			stepSize="50" maximum="1000000" minimum="50" backgroundColor="black" color="0xFFFFFF"/>
-		<mx:Text selectable="false" text="= 1 AU"/>
-	</mx:HBox>
-			
 	<mx:DateFormatter id="dateFormatter" formatString="MMMM DD, YYYY"/>	
 	<mx:Text id="txtDate" selectable="false" text="{dateFormatter.format(viewParameters.getCurrentDate(viewParameters.currentFrame))}"
 		bottom="0" horizontalCenter="0" color="0xFFFFFF"/>
@@ -278,12 +291,17 @@
 		visible="{SHOW_START}" includeInLayout="{SHOW_START}"
 		title="Welcome to Universe Modeler">
 		<mx:VBox width="100%" height="100%" horizontalAlign="center">
-			<mx:HBox width="100%">
+			<mx:HBox width="100%" verticalAlign="middle">
 				<mx:CheckBox id="chkShowPath" label="Show Paths" selected="{_solarSystem.showPaths}" change="enablePaths(chkShowPath.selected)"/>
-				<mx:CheckBox id="chkShowConsole" label="Show Console" selected="{consoleBox.visible}" change="consoleBox.visible = chkShowConsole.selected"/>
+				<mx:CheckBox id="chkShowGrid" label="Show Grid" selected="{_solarSystem.showAxes}" change="_solarSystem.showAxes = !_solarSystem.showAxes"/>
 				<mx:CheckBox id="chkShowPanning" label="Enable Panning" selected="{mainCanvas.enablePanning}" change="enablePanning(chkShowPanning.selected)"/>
+				<mx:Spacer width="100%"/>
+				<mx:NumericStepper id="nsDistanceNumerator" width="89"
+					value="{viewParameters.distanceNumerator}" change="viewParameters.distanceNumerator = nsDistanceNumerator.value" 
+					stepSize="50" maximum="1000000" minimum="50" backgroundColor="black" color="0xFFFFFF"/>
+				<mx:Text selectable="false" text="pixels = 1 AU"/>
 			</mx:HBox>
-			<mx:Text width="100%" selectable="false" text="{'Press Use Default to view a two body system that mimics Earth and Sol.\nPress Add Body to add custom bodies to the view.\nNote that the positive X direction is right, while the positive Y direction is down (inverted Y).'}"/>
+			<mx:Text width="100%" selectable="false" text="{'Press Use Default to start with a two body system that mimics Earth and Sol.\nPress Add Body to add custom bodies to the view.\nNote that the positive X direction is right, while the positive Y direction is down (Y is inverted).'}"/>
 			<mx:HBox width="100%" horizontalAlign="center">
 				<mx:Text text="Use Default" selectable="false" useHandCursor="true" buttonMode="true" mouseChildren="false"
 					fontSize="12" textDecoration="underline"
@@ -291,15 +309,22 @@
 				<mx:Text text="Add Body" selectable="false" useHandCursor="true" buttonMode="true" mouseChildren="false" 
 					fontSize="12" textDecoration="underline"
 					click="addNewObject()"/>
+				<!--<mx:Spacer width="100%"/>
+				<mx:Text selectable="false" text="Add From Save:"/>
+				<mx:ComboBox id="cboLoad" dataProvider="{saveSO.data.saves}" change="onLoad()" prompt="Select..."/>-->
 			</mx:HBox>
 			<mx:HRule width="100%"/>
 			<containers:TabList id="lstAddBodies" width="100%" height="100%"/>
 		</mx:VBox>
-		<mx:ControlBar horizontalAlign="center">
-			<mx:Text text="Use Custom" selectable="false" useHandCursor="true" buttonMode="true" mouseChildren="false"
+		<mx:ControlBar>
+			<!--<mx:Text id="btnSave" text="Save" selectable="false" useHandCursor="true" buttonMode="true" mouseChildren="false"
+					fontSize="12" textDecoration="underline" visible="{lstAddBodies.dataProvider.length &gt; 0}"
+					click="save()"/>-->
+			<mx:Spacer width="100%"/>
+			<mx:Text id="btnLaunch" text="Launch" selectable="false" useHandCursor="true" buttonMode="true" mouseChildren="false"
 					fontSize="12" textDecoration="underline" visible="{lstAddBodies.dataProvider.length &gt; 0}"
 					click="useCustom()"/>
-			<mx:Text text="Clear All" selectable="false" useHandCursor="true" buttonMode="true" mouseChildren="false"
+			<mx:Text id="btnClear" text="Clear All" selectable="false" useHandCursor="true" buttonMode="true" mouseChildren="false"
 					fontSize="12" textDecoration="underline" visible="{lstAddBodies.dataProvider.length &gt; 0}"
 					click="lstAddBodies.dataProvider = new ArrayCollection();lstAddBodies.removeAll()"/>
 		</mx:ControlBar>

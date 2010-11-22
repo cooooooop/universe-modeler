@@ -10,6 +10,8 @@ package org.cove.ape {
 		
 		[Bindable]
 		private var _force:Vector;
+		
+		[Bindable] public var color:uint = 0xFFFFFF;
 						
 		public function SelectableParticle(
 				x:Number, 
@@ -37,7 +39,7 @@ package org.cove.ape {
 				}
 				
 				sprite.graphics.lineStyle(lineThickness, lineColor, lineAlpha);
-				sprite.graphics.beginFill(fillColor, fillAlpha);
+				sprite.graphics.beginFill(color, fillAlpha);
 				sprite.graphics.drawCircle(0, 0, radius);
 				sprite.graphics.endFill();
 			}

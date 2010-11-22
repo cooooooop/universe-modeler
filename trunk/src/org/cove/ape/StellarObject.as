@@ -2,16 +2,15 @@
  * @author curtis
  */
 package org.cove.ape {
-	
 	public class StellarObject extends SelectableParticle {
 		
 		[Bindable]
 		private var _name:String;
 				
 		public function StellarObject(
-				x:Number, 
-				y:Number, 
-				radius:Number, 
+				x:Number=NaN, 
+				y:Number=NaN, 
+				radius:Number=NaN, 
 				fixed:Boolean = false,
 				mass:Number = 1, 
 				elasticity:Number = 0.3,
@@ -27,6 +26,14 @@ package org.cove.ape {
 		
 		public function set name($data:String):void {
 			_name = $data;
+		}
+		
+		public function clone():StellarObject {
+			var clone:StellarObject = new StellarObject(this.center.x, this.center.y, this.radius, this.fixed, this.mass, this.elasticity, this.friction);
+			clone.name = this.name;
+			clone.velocity = this.velocity;
+			
+			return clone;
 		}
 		
 	}

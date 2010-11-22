@@ -48,6 +48,13 @@ CheckBox
 	textRollOverColor:	#AAAAAA;	
 }
 
+ComboBox
+{
+	use-roll-over:		false;
+	selection-color:	#000000;
+	text-selected-color:#0099FF;
+}
+
 TextInput
 {
 	color: #000000;

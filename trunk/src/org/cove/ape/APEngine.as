@@ -225,6 +225,18 @@ package org.cove.ape {
 			g.init();
 		}
 		
+		/**
+		 * Tests if group is already added
+		 */
+		public static function hasGroup(g:Group):Boolean {
+			for each(var group:Group in groups) {
+				if(g == group)
+					return true;
+			}
+			
+			return false;
+		}
+		
 		
 		/**
 		 * Removes a Group from the engine.
