@@ -63,7 +63,7 @@ package org.cove.ape {
 			return new VectorForce(true,forceX,forceY);
 		}
 		
-		public function selectParticleAt($x:Number, $y:Number):SelectableParticle {
+		public function selectParticleAt($x:Number, $y:Number, $staySelected:Boolean = false):SelectableParticle {
 			//selects as if particle was square
 			//only deals with SelectableParticles
 			var returnParticle:SelectableParticle;
@@ -74,7 +74,7 @@ package org.cove.ape {
 						returnParticle = particle;
 						particle.selected = true;
 				}
-				else
+				else if(!$staySelected)
 					particle.selected = false;
 				
 			}

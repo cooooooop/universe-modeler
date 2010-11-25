@@ -9,6 +9,8 @@ package physics {
 	import flash.geom.Point;
 	import flash.utils.Dictionary;
 	
+	import mx.core.Application;
+	
 	import org.cove.ape.*;
 
 	public class SolarSystem extends Sprite {
@@ -18,7 +20,7 @@ package physics {
 		[Bindable] public var showPaths:Boolean = true;
 		
 		private static const DELTA_TIME:Number = 1;
-		private var testFrameControl:Number = 1; //default value is 1, set to larger number to slow down
+		[Bindable] public var testFrameControl:Number = 1; //default value is 1, set to larger number to slow down
 		
 		private var viewParameters:ViewParameters = ViewParameters.getInstance();
 		
@@ -38,7 +40,7 @@ package physics {
 		private function onClick($event:MouseEvent):void {
 			var clickPoint:Point = new Point($event.stageX, $event.stageY);
 			var localPoint:Point = this.globalToLocal(clickPoint);
-			var selectedParticle:StellarObject = _bodiesGroup.selectParticleAt(localPoint.x, localPoint.y) as StellarObject;
+			var selectedParticle:StellarObject = _bodiesGroup.selectParticleAt(localPoint.x, localPoint.y, $event.ctrlKey) as StellarObject;
 		
 			dispatchEvent(new SelectionEvent(SelectionEvent.SELECTION, selectedParticle, true, true));
 		}
@@ -72,6 +74,21 @@ package physics {
 			
 			_axesGroup.addParticle(xAxis);
 			_axesGroup.addParticle(yAxis);
+			
+			var x:Number = -1000;
+			var tick:RectangleParticle;
+			while (x <= 1000) {
+				tick = new RectangleParticle(x,0,0.001,10,0,true);
+				tick.setStyle(1,0xFFFFFF,1,0xFFFFFF,1);
+				_axesGroup.addParticle(tick);
+				
+				tick = new RectangleParticle(0,x,10,0.001,0,true);
+				tick.setStyle(1,0xFFFFFF,10,0xFFFFFF,1);
+				_axesGroup.addParticle(tick);
+				
+				x = x + 200;
+			}
+			
 			
 		}
 		
@@ -124,42 +141,76 @@ package physics {
 				}
 			}
 		}
+		
+		public function moveSelectedBody(keyCode:Number):void {
+						
+			for each(var particle:SelectableParticle in _bodiesGroup.particles) {
+				if(particle.selected) {
+					switch(keyCode) {
+						case 38: //up
+							particle.py -= 1;
+							break;
+						case 40: //down
+							particle.py += 1;
+							break;
+						case 39: //right
+							particle.px += 1;
+							break;
+						case 37: //left
+							particle.px -= 1;
+							break;
+					}
+				}
+			}
+			
+			APEngine.paint();
+		}
 
 		private function run(evt:Event):void {
+			
+			viewParameters.currentFrame++;
 			
 			if(!showAxes && APEngine.hasGroup(_axesGroup))
 				APEngine.removeGroup(_axesGroup);
 			else if(showAxes && !APEngine.hasGroup(_axesGroup))
 				APEngine.addGroup(_axesGroup);
 			
-			//Each frame represents one 
-			viewParameters.currentFrame++;
+			viewParameters.timeFrame += testFrameControl;
 			
-			if(viewParameters.currentFrame % (1 * testFrameControl) == 0) {
-				switch(Main.timeControlValue) {
-					case Main.FR:
-						testFrameControl--;
-						break;
-					case Main.SR:
-						break;
-					case Main.PA:
-						testFrameControl = 0;
-						break;
-					case Main.PL:
+			switch(Main.timeControlValue) {
+				case Main.FR:
+					testFrameControl += 25;
+					break;
+				case Main.SR:
+					testFrameControl += 5;
+					break;
+				case Main.PA:
+					testFrameControl = 0;
+					break;
+				case Main.PL:
+					testFrameControl = 5;
+					break;
+				case Main.SF:
+					if(testFrameControl > 5)
+						testFrameControl -= 5;
+					else
 						testFrameControl = 5;
-						break;
-					case Main.SF:
-						break;
-					case Main.FF:
-						testFrameControl++;
-						break;
-				}
+					break;
+				case Main.FF:
+					if(testFrameControl > 25)
+						testFrameControl -= 25;
+					else
+						testFrameControl = 5;
+					break;
+			}
+			Main.timeControlValue = null;
 				
+			
+			if(!(Application.application as Main).SHOW_START && viewParameters.currentFrame % (testFrameControl/5) == 0) {
 				calculateForcesPerStep();
-				
 				APEngine.step();
 				APEngine.paint();
-				if(showPaths && viewParameters.currentFrame % (5 * testFrameControl) == 0)	
+				if(showPaths)	
 					drawPath();
 				else if(!showPaths) {
 					_prevLocations = null;
