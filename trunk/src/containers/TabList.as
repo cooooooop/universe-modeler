@@ -34,7 +34,8 @@ package containers {
 		}
 		
 		private function onCollectionChange($event:CollectionEvent):void {
-			addChildren();
+			if($event.kind != "update")
+				addChildren();
 		}
 		
 		private function addChildren():void {
@@ -76,6 +77,16 @@ package containers {
 		public function removeAll():void {
 			for each(var renderer:AddBodyRenderer in getChildren()) {
 				this.removeChild(renderer);
+			}
+		}
+		
+		public function cloneAll():void {
+			for each(var renderer:AddBodyRenderer in getChildren()) {
+				var temp:StellarObject = renderer.data as StellarObject;
+				var index:int = _dataProvider.getItemIndex(temp);
+				renderer.data = temp.clone();
+				if(index >= 0)
+					_dataProvider.setItemAt(renderer.data,index);
 			}
 		}
 			

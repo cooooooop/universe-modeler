@@ -14,10 +14,13 @@
 		private var _lastSelectedMass:String;
 		
 		override public function set data(value:Object):void{
+        	if(super.data == null) {
+	        	cboMass.selectedItem = _lastSelectedMass = "Solar Mass";
+	        	colorPicker.selectedColor = 0xFFFFFF;
+	        }
+        	
         	super.data = value;
         	_body = value as StellarObject;
-        	cboMass.selectedItem = _lastSelectedMass = "Solar Mass";
-        	colorPicker.selectedColor = 0xFFFFFF;
         	
     	}
     	
@@ -37,6 +40,8 @@
     	
     	public function updateAll():StellarObject {
     		_body.name = txtName.text;
+    		if(Number(txtMass.text) <= 0)
+    			txtMass.text = "0.00000000001";
     		_body.mass = getMassValueByString(cboMass.selectedItem as String) * Number(txtMass.text);
     		_body.px = Number(txtPosX.text) * viewParameters.distanceNumerator;
     		_body.py = Number(txtPosY.text) * viewParameters.distanceNumerator;
@@ -84,18 +89,17 @@
 		</mx:FormItem>
 		<mx:FormItem label="Mass">
 			<mx:Canvas width="246" horizontalScrollPolicy="off">
-				<mx:TextInput id="txtMass" text="1" width="144" restrict="0-9." left="0" verticalCenter="0"
-					change="{Number(txtMass.text) &lt;= 0 ? txtMass.text = '0.00000001':txtMass.text = txtMass.text}"/>
 				<!--<mx:Text selectable="false" text=" x Earth Mass"/>-->
-				<mx:Text selectable="false" text="^" right="10" verticalCenter="0"/>
-				<mx:ComboBox id="cboMass" right="-10" skin="{null}" color="0xFFFFFF" dataProvider="{_massList}" change="onMassComboChange()"
+				<mx:Text selectable="false" text="^" right="10" verticalCenter="0" mouseChildren="false"/>
+				<mx:ComboBox id="cboMass" skin="{null}" right="-10" color="0xFFFFFF" dataProvider="{_massList}" change="onMassComboChange()"
 					toolTip="Click to change" verticalCenter="0"/>
+				<mx:TextInput id="txtMass" text="1" width="144" restrict="0-9." left="0" verticalCenter="0"/>
 			</mx:Canvas>
 		</mx:FormItem>
 		<mx:FormItem label="Radius">
 			<mx:HBox verticalAlign="middle">	
 				<mx:TextInput id="txtRadius" width="144" text="5"/>
-				<mx:Text selectable="false" text="m"/>
+				<mx:Text selectable="false" text="pixels"/>
 			</mx:HBox>
 		</mx:FormItem>
 		<mx:FormItem label="Color">

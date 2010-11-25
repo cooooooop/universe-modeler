@@ -1,25 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml"
-	height="{open ? 125:25}" width="100%"
+	height="{open ? 225:25}" width="100%"
 	horizontalScrollPolicy="off">
 	<mx:Script>
 	<![CDATA[
 		import physics.MathUtil;
 		
-		[Bindable] public var open:Boolean = false;
+		[Bindable] public var open:Boolean = true;
 		
 		[Bindable] private var viewParameters:ViewParameters = ViewParameters.getInstance();
 	]]>
 	</mx:Script>
-	<mx:HBox width="100%">
-		<mx:Text selectable="false" text="{open ? '-':'+'}" 
+	<mx:HBox width="100%" borderColor="{data.selected ? 0xFFFFFF:0x444444}" borderStyle="solid" borderThickness="1">
+		<mx:Text selectable="false" text="{open ? '-':'+'}"
 			useHandCursor="true" buttonMode="true" mouseChildren="false"
 			click="open = !open" width="21" textAlign="center"/>
-		<mx:Text selectable="false" text="{data.name}" click="open = !open" doubleClickEnabled="true"
-			doubleClick="data.selected = !data.selected" fontWeight="{data.selected ? 'bold':'normal'}"/>
+		<mx:Text selectable="false" text="{data.name}" click="open = !open" doubleClickEnabled="true" color="{data.color}"
+			doubleClick="data.selected = !data.selected" fontWeight="bold"/>
 	</mx:HBox>
-	<mx:Text paddingLeft="21" selectable="false" text="{'Mass: ' + MathUtil.toScientific(Number(data.mass), 2) + ' kg'}"/>
-	<mx:Text paddingLeft="21" selectable="false" text="{'Position: X=' + MathUtil.toScientific(data.position.x / viewParameters.distanceRatio, 2) + ' m' + ' Y=' + MathUtil.toScientific(data.position.y / viewParameters.distanceRatio, 2) + ' m'}"/>
-	<mx:Text paddingLeft="21" selectable="false" text="{'Velocity: X=' + Number(data.curr.x - data.prev.x).toFixed(2) + ' m/s' + ' Y=' + Number(data.curr.y - data.prev.y).toFixed(2) + ' m/s'}"/>
-	<mx:Text paddingLeft="21" selectable="false" text="{'Force: X=' + MathUtil.toScientific(Number(data.force.x), 2) + ' N' + ' Y=' + MathUtil.toScientific(Number(data.force.y), 2) + ' N'}"/>
+	<mx:Text paddingLeft="21" selectable="false" text="{'Mass\n ' + MathUtil.toScientific(Number(data.mass), 2) + ' kg'}"/>
+	<mx:Text paddingLeft="21" selectable="false" text="{'Position\n  X: ' + MathUtil.toScientific(data.position.x / viewParameters.distanceRatio, 2) + ' m' + '\n  Y: ' + MathUtil.toScientific(data.position.y / viewParameters.distanceRatio, 2) + ' m'}"/>
+	<mx:Text paddingLeft="21" selectable="false" text="{'Velocity\n  X:' + MathUtil.toScientific((data.curr.x - data.prev.x)/viewParameters.velocityRatio, 2) + ' m/s' + '\n  Y: ' + MathUtil.toScientific((data.curr.y - data.prev.y)/viewParameters.velocityRatio, 2) + ' m/s'}"/>
+	<mx:Text paddingLeft="21" selectable="false" text="{'Force\n  X:' + MathUtil.toScientific(Number(data.force.x), 2) + ' N' + '\n  Y: ' + MathUtil.toScientific(Number(data.force.y), 2) + ' N'}"/>
 </mx:VBox>

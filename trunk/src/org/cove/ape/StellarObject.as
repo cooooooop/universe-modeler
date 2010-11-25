@@ -31,7 +31,7 @@ package org.cove.ape {
 		public function clone():StellarObject {
 			var clone:StellarObject = new StellarObject(this.center.x, this.center.y, this.radius, this.fixed, this.mass, this.elasticity, this.friction);
 			clone.name = this.name;
-			clone.velocity = this.velocity;
+			clone.velocity = new Vector(this.velocity.x, this.velocity.y);
 			
 			return clone;
 		}
