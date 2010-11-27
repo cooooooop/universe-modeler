@@ -121,10 +121,18 @@ package org.cove.ape {
 			return delta.magnitude();
 		}
 
+		public function distanceX(v:Vector):Number {
+			return this.x - v.x;
+		}
+		
+		public function distanceY(v:Vector):Number {
+			return this.y - v.y;
+		}
 	
 		public function normalize():Vector {
 			 var m:Number = magnitude();
-			 if (m == 0) m = 0.0001;
+			 if (m == 0) 
+			 	m = 0.0001;
 			 return mult(1 / m);
 		}
 		

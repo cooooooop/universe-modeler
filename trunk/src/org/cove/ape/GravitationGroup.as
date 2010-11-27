@@ -52,12 +52,19 @@ package org.cove.ape {
 				
 			var distance:Number = $particle.center.distance(centralMass) / viewParameters.distanceRatio;
 			
+			var distanceX:Number = $particle.center.distanceX(centralMass) / viewParameters.distanceRatio;
+			var distanceY:Number = $particle.center.distanceY(centralMass) / viewParameters.distanceRatio;
+			
 			var forceX:Number = G * ((totalMass * $particle.mass)* $particle.center.unitVector(centralMass).x)/(distance*distance) ;
 			var forceY:Number = G * ((totalMass * $particle.mass) * $particle.center.unitVector(centralMass).y)/(distance*distance);
+			
+			//var forceX:Number = G * (totalMass * $particle.mass)/(distanceX*distanceX);
+			//var forceY:Number = G * (totalMass * $particle.mass)/(distanceY*distanceY);
+			
 			//handle divide by zero
-			if(isNaN(forceX))
+			if(isNaN(forceX) || forceX == Infinity)
 				forceX = 0;
-			if(isNaN(forceY))
+			if(isNaN(forceY) || forceY == Infinity)
 				forceY = 0;
 			
 			return new VectorForce(true,forceX,forceY);

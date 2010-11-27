@@ -23,7 +23,7 @@ package  {
 	    }
 		private static var _instance:ViewParameters = new ViewParameters(ModelEnforcer);
 		public const FRAME_RATE:Number = 60; //number of frames on screen in one second
-		public const TIME_RATIO:Number = 6400000; //number of seconds represented by one frame ##5.6 mil
+		public const TIME_RATIO:Number = 6400000; //number of seconds represented by one frame 
 		public const ORIGINAL_DATE:Date = new Date("2009", "6", "22");
 			
 		public const canvasWidth:Number = 1000;

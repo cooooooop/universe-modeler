@@ -59,6 +59,7 @@ package physics {
 		
 		public function clear():void {
 			_prevLocations = null;
+			viewParameters.timeFrame = 1;
 			if(_bodiesGroup) {
 				APEngine.removeGroup(_bodiesGroup);
 			}
@@ -175,7 +176,8 @@ package physics {
 			else if(showAxes && !APEngine.hasGroup(_axesGroup))
 				APEngine.addGroup(_axesGroup);
 			
-			viewParameters.timeFrame += testFrameControl;
+			if(testFrameControl != 0)
+				viewParameters.timeFrame += 25 / testFrameControl;
 			
 			switch(Main.timeControlValue) {
 				case Main.FR:
