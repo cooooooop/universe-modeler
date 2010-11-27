@@ -273,7 +273,7 @@
 	
 	<mx:DateFormatter id="dateFormatter" formatString="MMMM DD, YYYY"/>	
 	<mx:Text id="txtDate" selectable="false" text="{dateFormatter.format(viewParameters.getCurrentDate(viewParameters.timeFrame))}"
-		bottom="0" horizontalCenter="0" color="0xFFFFFF" visible="false"/>
+		bottom="20" horizontalCenter="0" color="0xFFFFFF" visible="true"/>
 		
 	<!-- Time controls -->	
 	<mx:HBox verticalAlign="center" bottom="5" horizontalCenter="0" visible="{!SHOW_START}">
