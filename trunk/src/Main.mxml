@@ -1,4 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--Copyright (c) 2010 Curtis Cooper
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.-->
 <mx:Application xmlns:mx="http://www.adobe.com/2006/mxml"
 	xmlns:containers="containers.*"
 	xmlns:ape="util.*"
@@ -7,6 +26,7 @@
 	layout="absolute" >
 	<mx:Script>
 		<![CDATA[
+			import flash.net.navigateToURL;
 			import flash.net.registerClassAlias;
 			import mx.containers.Canvas;
 			import mx.events.CloseEvent;
@@ -39,6 +59,8 @@
 			[Bindable] public var consoleText:String = "";
 			[Bindable] public var _selectedObject:StellarObject;
 			[Bindable] public var SHOW_START:Boolean = false;
+			[Bindable] public var SHOW_ACK:Boolean = false;
+			[Bindable] public var SHOW_HELP:Boolean = false;
 			
 			public static const FR:String = "FR";
 			public static const SR:String = "SR";
@@ -62,6 +84,10 @@
 			           <menuitem label="Toggle Panning (press M)" data="PAN"/>
 			           <menuitem label="Toggle Paths (press P)" data="PATH"/>
 			           <menuitem label="Toggle Grid (press G)" data="GRID"/>
+                    </menuitem>
+                    <menuitem label="Help" data="top">
+                    	<menuitem label="Show Help" data="HELP"/>
+                        <menuitem label="About..." data="ABOUT"/>
                     </menuitem>
                 </>;
 			
@@ -174,6 +200,12 @@
 					case "Toggle Grid (press G)":
 						_solarSystem.showAxes = !_solarSystem.showAxes;
 						break;
+					case "About...":
+						SHOW_ACK = true;;
+						break;
+					case "Show Help":
+						SHOW_HELP = true;;
+						break;
 				}
 			}
 			
@@ -271,9 +303,9 @@
 			text="{consoleText}" backgroundColor="black"/>
 	</mx:VBox>
 	
-	<mx:DateFormatter id="dateFormatter" formatString="MMMM DD, YYYY"/>	
+	<mx:DateFormatter id="dateFormatter" formatString="MMMM DD, YYYY - LL A"/>	
 	<mx:Text id="txtDate" selectable="false" text="{dateFormatter.format(viewParameters.getCurrentDate(viewParameters.timeFrame))}"
-		bottom="20" horizontalCenter="0" color="0xFFFFFF" visible="true"/>
+		bottom="20" horizontalCenter="0" color="0xFFFFFF" visible="{!SHOW_START}"/>
 		
 	<!-- Time controls -->	
 	<mx:HBox verticalAlign="center" bottom="5" horizontalCenter="0" visible="{!SHOW_START}">
@@ -295,7 +327,7 @@
 			useHandCursor="{_solarSystem.testFrameControl &gt; 25}" buttonMode="true" mouseChildren="false" selectable="false"/>
 	</mx:HBox>
 	
-	<mx:Text selectable="false" text="200 pixels = 1 AU" bottom="5" right="5"/>
+	<mx:Text selectable="false" text="200 pixels = 1 AU" bottom="5" right="5" visible="{!SHOW_START}"/>
 	
 	<mx:TitleWindow id="titleWindowStart" width="610" height="377"
 		borderAlpha="1"
@@ -322,7 +354,7 @@
 				<mx:ComboBox id="cboLoad" dataProvider="{saveSO.data.saves}" change="onLoad()" prompt="Select..."/>-->
 			</mx:HBox>
 			<mx:HRule width="100%"/>
-			<containers:TabList id="lstAddBodies" width="100%" height="100%"/>
+			<containers:TabList id="lstAddBodies" width="100%" height="181"/>
 		</mx:VBox>
 		<mx:ControlBar>
 			<!--<mx:Text id="btnSave" text="Save" selectable="false" useHandCursor="true" buttonMode="true" mouseChildren="false"
@@ -337,5 +369,101 @@
 					click="lstAddBodies.dataProvider = new ArrayCollection();lstAddBodies.removeAll()"/>
 		</mx:ControlBar>
 	</mx:TitleWindow>
+	
+	<mx:TitleWindow id="titleWindowAbout" width="610" height="377"
+		borderAlpha="1" showCloseButton="true" close="SHOW_ACK = false"
+		verticalCenter="0" horizontalCenter="0"
+		visible="{SHOW_ACK}" includeInLayout="{SHOW_ACK}"
+		title="About Universe Modeler" verticalGap="0">
+			<mx:Text selectable="false" width="100%" text="{'Special thanks to:'}"/>
+			<mx:HBox>
+				<mx:Text selectable="false" width="100%" text="{'Alec Cove for the ActionScript Physics Engine (APE)'}"/>
+				<mx:Text selectable="false" buttonMode="true" mouseChildren="false" useHandCursor="true" textDecoration="underline" 
+					text="http://www.cove.org/portfolio/opensource.htm" click="navigateToURL(new URLRequest('http://www.cove.org/portfolio/opensource.htm'))"/>
+			</mx:HBox>
+			<mx:HBox>
+				<mx:Text selectable="false" width="100%" text="{'mb0 (real name unknown) for AXDT'}"/>
+				<mx:Text selectable="false" buttonMode="true" mouseChildren="false" useHandCursor="true" textDecoration="underline" 
+					text="http://www.axdt.org" click="navigateToURL(new URLRequest('http://www.axdt.org'))"/>
+			</mx:HBox>
+			<mx:HBox>
+				<mx:Text selectable="false" width="100%" text="{'De Monsters for De MonsterDebugger'}"/>
+				<mx:Text selectable="false" buttonMode="true" mouseChildren="false" useHandCursor="true" textDecoration="underline" 
+					text="http://www.demonsterdebugger.com" click="navigateToURL(new URLRequest('http://www.demonsterdebugger.com'))"/>
+			</mx:HBox>
+			<mx:HBox>
+				<mx:Text selectable="false" width="100%" text="{'Didier Burton for PanScrollingCanvas'}"/>
+				<mx:Text selectable="false" buttonMode="true" mouseChildren="false" useHandCursor="true" textDecoration="underline" 
+					text="http://blog.didierburton.net" click="navigateToURL(new URLRequest('http://blog.didierburton.net'))"/>
+			</mx:HBox>
+			<mx:HBox>
+				<mx:Text selectable="false" width="100%" text="{'Robert Penner for exponent notation functions'}"/>
+				<mx:Text selectable="false" buttonMode="true" mouseChildren="false" useHandCursor="true" textDecoration="underline" 
+					text="http://robertpenner.com/" click="navigateToURL(new URLRequest('http://robertpenner.com/'))"/>
+			</mx:HBox>
+			<mx:Spacer height="10"/>
+			<mx:HBox>
+				<mx:Text selectable="false" width="100%" text="{'Source code is available via subversion'}"/>
+				<mx:Text selectable="false" buttonMode="true" mouseChildren="false" useHandCursor="true" textDecoration="underline" 
+					text="http://universe-modeler.googlecode.com/svn/" click="navigateToURL(new URLRequest('http://universe-modeler.googlecode.com/svn/'))"/>
+			</mx:HBox>
+			<mx:Text selectable="false" width="100%" text="{'Copyright (c) 2010 Curtis Cooper
+\n\n
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the &quot;Software&quot;), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+\n\n
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+\n\n
+THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.'}"/>
+		<mx:ControlBar horizontalAlign="center">
+			<mx:Button label="Close" click="SHOW_ACK = false"/>
+		</mx:ControlBar>
+	</mx:TitleWindow>
+	
+	<mx:TitleWindow id="titleWindowHelp" width="610" height="377"
+		borderAlpha="1" showCloseButton="true" close="SHOW_HELP = false"
+		verticalCenter="0" horizontalCenter="0"
+		visible="{SHOW_HELP}" includeInLayout="{SHOW_HELP}"
+		title="Help">
+			<mx:Text selectable="false" width="100%" text="{'' + 
+					'My hope is that this application is designed in such a way that the majority of functionality, and how it can be used, is immediately apparent to the user. ' + 
+					'However, there are some elements which I imagine will not be immediately obvious so I will elaborate on these areas.\n\n' + 
+					'Adding Bodies:\n' + 
+					'The purpose of the application is to show how bodies react under the influence of the law of universal gravitation. ' + 
+					'All bodies that are added to the application influence each other, there is no way to add a body that is immune to ' + 
+					'the forces of other bodies or which does not affect other bodies. All bodies are added at the Welcome/Add Bodies dialog by clicking ' + 
+					'&quot;Add Body&quot;. A new body will be added to the list below and it\'s properties can be customized by changing the form values. Proceeding in this fashion ' + 
+					'multiple body systems can be modeled. To begin the simulation click &quot;Launch&quot;.\n\n' + 
+					'Selecting and Moving Bodies:\n' + 
+					'Once a simulation is in motion the bodies that have been added can be moved in space. To do this bodies must first be selected, only ' + 
+					'selected bodies will respond to keyboard input. To select a body either click on it in the view pane (hold Ctrl and click for multiple ' + 
+					'selection) or double click the body\'s name in the left hand details panel. To move bodies, hold the arrow keys in the direction ' + 
+					'you would like them to move.\n\n' + 
+					'Time Controls:\n' + 
+					'There are controls at the bottom of the screen which control the passage of time for the simulation. The simulation begins at the ' + 
+					'fastest simulation speed and can at any time be returned to this speed by pressing the &quot;Play&quot; button. To slow the simulation ' + 
+					'press either the &quot;Step Back&quot; or &quot;Fast Reverse&quot; button, and to increase the speed press either the &quot;Step Forward&quot; or &quot;Fast Forward&quot; button.\n\n' + 
+					'View Controls:\n' + 
+					'There are three hotkeys that can be used to toggle the three view controls (Panning, Paths and Grid). These hotkeys are M - Panning, P - Paths and G - Grid. Press these keys ' + 
+					'while the application is in focus to toggle the related feature. These features can also be controlled by checkboxes in the Welcome/Add Bodies dialog ' + 
+					'and from the Controls menu. When Panning is enabled, the viewing area reacts to the user\'s mouse to move the view to different areas. When Paths are ' + 
+					'enabled, a path will be drawn showing the past motion of each planet. When Grid is enabled, x and y axes are displayed on the screen (each tick mark ' + 
+					'equals 1 AU, the average distance from the Earth to Sol).'}"/>
+					
+		<mx:ControlBar horizontalAlign="center">
+			<mx:Button label="Close" click="SHOW_HELP = false"/>
+		</mx:ControlBar>
+	</mx:TitleWindow>	
 	
 </mx:Application>
