@@ -152,6 +152,9 @@ THE SOFTWARE.-->
 			}
 			
 			private function handleKeyDown($event:KeyboardEvent):void {
+				if(SHOW_ACK || SHOW_HELP || SHOW_START)
+					return;
+				
 				switch($event.keyCode) {
 					case 71:
 						_solarSystem.showAxes = !_solarSystem.showAxes;
@@ -330,7 +333,7 @@ THE SOFTWARE.-->
 	<mx:Text selectable="false" text="200 pixels = 1 AU" bottom="5" right="5" visible="{!SHOW_START}"/>
 	
 	<mx:TitleWindow id="titleWindowStart" width="610" height="377"
-		borderAlpha="1"
+		borderAlpha="1" verticalScrollPolicy="off"
 		verticalCenter="0" horizontalCenter="0"
 		visible="{SHOW_START}" includeInLayout="{SHOW_START}"
 		title="Welcome to Universe Modeler">
