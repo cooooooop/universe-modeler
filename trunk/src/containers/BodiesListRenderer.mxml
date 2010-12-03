@@ -18,8 +18,8 @@
 		<mx:Text selectable="false" text="{data.name}" click="open = !open" doubleClickEnabled="true" color="{data.color}"
 			doubleClick="data.selected = !data.selected" fontWeight="bold"/>
 	</mx:HBox>
-	<mx:Text paddingLeft="21" selectable="false" text="{'Mass\n ' + MathUtil.toScientific(Number(data.mass), 2) + ' kg'}"/>
-	<mx:Text paddingLeft="21" selectable="false" text="{'Position\n  X: ' + MathUtil.toScientific(data.position.x / viewParameters.distanceRatio, 2) + ' m' + '\n  Y: ' + MathUtil.toScientific(data.position.y / viewParameters.distanceRatio, 2) + ' m'}"/>
-	<mx:Text paddingLeft="21" selectable="false" text="{'Velocity\n  X:' + MathUtil.toScientific((data.curr.x - data.prev.x)/viewParameters.velocityRatio, 2) + ' m/s' + '\n  Y: ' + MathUtil.toScientific((data.curr.y - data.prev.y)/viewParameters.velocityRatio, 2) + ' m/s'}"/>
-	<mx:Text paddingLeft="21" selectable="false" text="{'Force\n  X:' + MathUtil.toScientific(Number(data.force.x), 2) + ' N' + '\n  Y: ' + MathUtil.toScientific(Number(data.force.y), 2) + ' N'}"/>
+	<mx:Text paddingLeft="21" selectable="false" text="{'Mass\n ' + MathUtil.toScientific(Number(data.mass), 4) + ' kg'}"/>
+	<mx:Text paddingLeft="21" selectable="false" text="{'Position\n  X: ' + MathUtil.toScientific(data.position.x / viewParameters.distanceRatio, 4) + ' m' + '\n  Y: ' + MathUtil.toScientific(data.position.y / viewParameters.distanceRatio, 4) + ' m'}"/>
+	<mx:Text paddingLeft="21" selectable="false" text="{'Velocity\n  X:' + MathUtil.toScientific((data.curr.x - data.prev.x)/viewParameters.velocityRatio, 4) + ' m/s' + '\n  Y: ' + MathUtil.toScientific((data.curr.y - data.prev.y)/viewParameters.velocityRatio, 4) + ' m/s'}"/>
+	<mx:Text paddingLeft="21" selectable="false" text="{'Force\n  X:' + MathUtil.toScientific(Number(data.force.x), 4) + ' N' + '\n  Y: ' + MathUtil.toScientific(Number(data.force.y), 4) + ' N'}"/>
 </mx:VBox>
